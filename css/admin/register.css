@@ -1,0 +1,17 @@
+#validity {
+  display: none;
+}
+
+.reg-yellow {
+  color: rgb(165, 231, 33);
+}
+
+#reg-form {
+  max-width: 600px;
+}
+
+.form-control {
+  border: none !important;
+  border-bottom: 1px solid black !important;
+  border-radius: 0 !important;
+}
