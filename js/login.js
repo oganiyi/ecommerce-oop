@@ -31,7 +31,7 @@ login_form.onsubmit = (e) => {
               window.location.assign("common/dashboard.php");
             }, 2000);
           }
-          if (data.level === "user") {
+          if (data.level === "customer") {
             setTimeout(() => {
               window.location.assign("index.php");
             }, 2000);
