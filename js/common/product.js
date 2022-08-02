@@ -7,6 +7,7 @@ let price = sellForm["prod-price"];
 let quantity = sellForm["prod-quantity"];
 let discount = sellForm["prod-discount"];
 let description = sellForm["prod-description"];
+let image = sellForm["prod-image"];
 
 let errors = {};
 let categoryError = document.querySelector("#prod-categoryErr");
@@ -17,6 +18,7 @@ let quantityError = document.querySelector("#prod-quantityErr");
 let discountError = document.querySelector("#prod-discountErr");
 let descriptionError = document.querySelector("#prod-descriptionErr");
 let imageError = document.querySelector("#imageErr");
+let added_images_errors = document.getElementsByName("added_imagesErr");
 
 function validateCategory(ctg) {
   ctg = ctg.value.trim();
@@ -60,10 +62,10 @@ function validatePrice(price) {
   price = price.value.trim();
   if (price === "") {
     errors.price = "Input the price of your product";
-  } else if (price <= 0) {
-    errors.price = "Price cannot be zero or negative";
   } else if (isNaN(price) && !Number.isInteger(price)) {
     errors.price = "Only enter an integer";
+  } else if (price <= 0) {
+    errors.price = "Price cannot be zero or negative";
   } else {
     errors.price = "";
   }
@@ -74,10 +76,10 @@ function validateQuantity(qty) {
   qty = qty.value.trim();
   if (qty === "") {
     errors.quantity = "Input the available quantity of your product";
-  } else if (qty < 1) {
-    errors.quantity = "Quantity cannot be less than 1";
   } else if (isNaN(qty) && !Number.isInteger(qty)) {
     errors.quantity = "Only enter an integer";
+  } else if (qty < 1) {
+    errors.quantity = "Quantity cannot be less than 1";
   } else {
     errors.quantity = "";
   }
@@ -88,10 +90,10 @@ function validateDiscount(dis) {
   dis = dis.value.trim();
   if (dis === "") {
     errors.discount = "";
+  } else if (isNaN(dis) || !Number.isInteger(dis)) {
+    errors.discount = "Only enter an integer";
   } else if (dis < 0 || dis > 99) {
     errors.discount = "Discount cannot be negative or greater than 99";
-  } else if (isNaN(dis) && !Number.isInteger(dis)) {
-    errors.discount = "Only enter an integer";
   } else {
     errors.discount = "";
   }
@@ -113,6 +115,23 @@ function validateDescription(des) {
   descriptionError.innerHTML = errors.description;
 }
 
+function validateImage(img) {
+  img = img.value.trim();
+  let allowedExt = ["jpg", "jpeg", "png"];
+  let splitImageArray = img.split(".");
+
+  if (img === "") {
+    errors.image = "Upload your product's image";
+  } else if (
+    !allowedExt.includes(splitImageArray[splitImageArray.length - 1])
+  ) {
+    errors.image = "Only upload jpg, jpeg and png format";
+  } else {
+    errors.image = "";
+  }
+  imageError.innerHTML = errors.image;
+}
+
 let btnAddMoreImages = sellForm["add-more-images"];
 
 function removeImage(id) {
@@ -121,10 +140,9 @@ function removeImage(id) {
   dom.remove();
 }
 
-let i = 0;
+let i = 1;
 
 btnAddMoreImages.addEventListener("click", () => {
-  i++;
   let div_id = "image_" + i;
   let node = document.createElement("div");
   node.setAttribute("id", div_id);
@@ -133,7 +151,7 @@ btnAddMoreImages.addEventListener("click", () => {
   let elementNode1 = document.createElement("input");
   let inputAttribute = {
     type: "file",
-    id: "added_images[]",
+    id: `added_images_${i}`,
     name: "added_images[]",
     class: "form-control p-3",
   };
@@ -143,7 +161,8 @@ btnAddMoreImages.addEventListener("click", () => {
 
   let elementNode2 = document.createElement("small");
   elementNode2.classList.add("text-danger");
-  elementNode2.setAttribute("id", "added_imagesErr[]");
+  elementNode2.setAttribute("id", `added_imagesErr_${i}`);
+  elementNode2.setAttribute("name", "added_imagesErr");
 
   let elementNode3 = document.createElement("button");
   elementNode3.classList.add("btn", "btn-danger", "p-2", "mt-2");
@@ -154,10 +173,10 @@ btnAddMoreImages.addEventListener("click", () => {
   node.append(elementNode1, elementNode2, elementNode3);
 
   btnAddMoreImages.parentNode.parentNode.appendChild(node);
+  i++;
 });
 
-sellForm.onsubmit = (e) => {
-  e.preventDefault();
+async function validateProduct() {
   validateCategory(category);
   validateName(name);
   validateBrand(brand);
@@ -165,15 +184,60 @@ sellForm.onsubmit = (e) => {
   validateQuantity(quantity);
   validateDiscount(discount);
   validateDescription(description);
-
+  validateImage(image);
   let formData = new FormData(sellForm);
 
-  fetch("../server/common/product.php", {
-    method: "POST",
-    body: formData,
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
+  try {
+    const response = await fetch("../server/common/product.php", {
+      method: "POST",
+      body: formData,
     });
+    if (response.status >= 200 && response.status <= 299) {
+      const data = await response.json();
+      console.log(data);
+
+      if (data.categoryError) {
+        categoryError.innerHTML = data.categoryError;
+      }
+      if (data.nameError) {
+        nameError.innerHTML = data.nameError;
+      }
+      if (data.brandError) {
+        brandError.innerHTML = data.brandError;
+      }
+      if (data.priceError) {
+        priceError.innerHTML = data.priceError;
+      }
+      if (data.quantityError) {
+        quantityError.innerHTML = data.quantityError;
+      }
+      if (data.discountError) {
+        discountError.innerHTML = data.discountError;
+      }
+      if (data.descriptionError) {
+        descriptionError.innerHTML = data.descriptionError;
+      }
+      if (data.imageError) {
+        imageError.innerHTML = data.imageError;
+      }
+      if (data.addedImagesError) {
+        for (let i = 0; i < added_images_errors.length; i++) {
+          console.log(i);
+          if (!data.addedImagesError[i]) {
+            continue;
+          }
+          added_images_errors[i].innerHTML = data.addedImagesError[i];
+        }
+      }
+    } else {
+      console.log(response.status, response.statusText);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+sellForm.onsubmit = (e) => {
+  e.preventDefault();
+  validateProduct();
 };

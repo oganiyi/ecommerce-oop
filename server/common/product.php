@@ -58,11 +58,11 @@ class Product extends Database
         if (empty($price)) {
             $this->productError['priceError'] = "Input the price of your product";
         }
-        else if ($price <= 0) {
-            $this->productError['priceError'] = "Price cannot be zero or negative";
-        }
         else if (!is_numeric($price) and !is_int($price)) {
             $this->productError['priceError'] = "Only enter an integer";
+        }
+        else if ($price <= 0) {
+            $this->productError['priceError'] = "Price cannot be zero or negative";
         }
         else {
             return $price;
@@ -75,11 +75,11 @@ class Product extends Database
         if (empty($qty)) {
             $this->productError['quantityError'] = "Input the available quantity of your product";
         }
-        else if ($qty < 1) {
-            $this->productError['quantityError'] = "Quantity cannot be less than 1";
-        }
         else if (!is_numeric($qty) and !is_int($qty)) {
             $this->productError['quantityError'] = "Only enter an integer";
+        }
+        else if ($qty < 1) {
+            $this->productError['quantityError'] = "Quantity cannot be less than 1";
         }
         else {
             return $qty;
@@ -92,11 +92,11 @@ class Product extends Database
         if (empty($dis)) {
             return 0;
         }
-        else if ($dis < 0 or $dis > 99) {
-            $this->productError['discountError'] = "Discount cannot be negative or greater than 99";
-        }
         else if (!is_numeric($dis) and !is_int($dis)) {
             $this->productError['discountError'] = "Only enter an integer";
+        }
+        else if ($dis < 0 or $dis > 99) {
+            $this->productError['discountError'] = "Discount cannot be negative or greater than 99";
         }
         else {
             return $dis;
@@ -105,13 +105,8 @@ class Product extends Database
 
     private function newPrice($price, $discount)
     {
-        $oldPrice = $this->validatePrice($price);
-        $discount = $this->validateDiscount($discount);
-
-        if (!$this->productError["priceError"] and !$this->productError["discountError"]) {
-            $new_price = ceil(((100 - $discount) / 100) * $oldPrice);
-            return $new_price;
-        }
+        $new_price = ceil(((100 - $discount) / 100) * $price);
+        return $new_price;
     }
 
     private function validateDescription($des)
@@ -133,21 +128,20 @@ class Product extends Database
 
     private function validateImage($img)
     {
-        $imageFile = $img;
         $rand = rand(1111111111, 9999999999) . "_";
-        $file_name = $rand . basename($imageFile['name']);
-        $error = $imageFile['error'];
-        $size = $imageFile['size'];
-        $temp_name = $imageFile['tmp_name'];
+        $file_name = $rand . basename($img['name']);
+        $error = $img['error'];
+        $size = $img['size'];
+        $temp_name = $img['tmp_name'];
         $path = "../../product_images/$file_name";
         $extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
         $allowedExt = ["jpg", "jpeg", "png"];
 
-        if (empty(basename($imageFile['name']))) {
-            $this->productError["imageError"] = "Upload your products's image";
+        if (empty(basename($img['name']))) {
+            $this->productError["imageError"] = "Upload your product's image";
         }
         else if (!in_array($extension, $allowedExt)) {
-            $this->productError["imageError"] = "Only upload .jpg, .jpeg and .png format";
+            $this->productError["imageError"] = "Only upload jpg, jpeg and png format";
         }
         else if ($size > 5000000) {
             $this->productError["imageError"] = "Your image cannot be greater than 5MB";
@@ -163,10 +157,45 @@ class Product extends Database
                 }
             }
         }
-
     }
 
-    public function validateProduct($category, $name, $brand, $price, $quantity, $discount, $description, $image)
+    private function validateAddedImages($img)
+    {
+        if ($img) {
+            foreach ($img['error'] as $key => $error) {
+                $rand = rand(1111111111, 9999999999) . "_";
+                $file_name = $rand . basename($img['name'][$key]);
+                $error = $img['error'][$key];
+                $size = $img['size'][$key];
+                $temp_name = $img['tmp_name'][$key];
+                $path = "../../added_product_images/$file_name";
+                $extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+                $allowedExt = ["jpg", "jpeg", "png"];
+                if (empty(basename($img['name'][$key]))) {
+                    $this->productError["addedImagesError"][$key] = "Upload your product's additional image<br>";
+                }
+                else if (!in_array($extension, $allowedExt)) {
+                    $this->productError["addedImagesError"][$key] = "Only upload jpg, jpeg and png format<br>";
+                }
+                else if ($size > 5000000) {
+                    $this->productError["addedImagesError"][$key] = "Your image cannot be greater than 5MB<br>";
+                }
+                else {
+                    if ($error != 0) {
+                        $this->productError["addedImagesError"][$key] = "There was an error uploading your image<br>";
+                    }
+                    else {
+                        if (!$this->productError) {
+                            move_uploaded_file($temp_name, $path);
+                            return $file_name;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function validateProduct($category, $name, $brand, $price, $quantity, $discount, $description, $image, $addedImages)
     {
         $category = $this->validateCategory($category);
         $name = $this->validateName($name);
@@ -176,19 +205,23 @@ class Product extends Database
         $discount = $this->validateDiscount($discount);
         $description = $this->validateDescription($description);
         $image = $this->validateImage($image);
+        $addedImages = $this->validateAddedImages($addedImages);
 
-        if (!$this->productError["priceError"] and !$this->productError["discountError"]) {
+        if (!$this->productError) {
             $newPrice = $this->newPrice($price, $discount);
             $this->productError["newPrice"] = $newPrice;
         }
-
-    // if (!$this->productError) {
-    // }
     }
 }
 
 $product = new Product();
 
-$product->validateProduct($_POST["prod-category"], $_POST["prod-name"], $_POST["prod-brand"], $_POST["prod-price"], $_POST["prod-quantity"], $_POST["prod-discount"], $_POST["prod-description"], $_FILES["prod-image"]);
+if (array_key_exists("added_images", $_FILES)) {
+    $product->validateProduct($_POST["prod-category"], $_POST["prod-name"], $_POST["prod-brand"], $_POST["prod-price"], $_POST["prod-quantity"], $_POST["prod-discount"], $_POST["prod-description"], $_FILES["prod-image"], $_FILES["added_images"]);
+}
+else {
+    $product->validateProduct($_POST["prod-category"], $_POST["prod-name"], $_POST["prod-brand"], $_POST["prod-price"], $_POST["prod-quantity"], $_POST["prod-discount"], $_POST["prod-description"], $_FILES["prod-image"], "");
+}
 echo json_encode($product->productError);
+
 ?>
