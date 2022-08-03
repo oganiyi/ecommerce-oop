@@ -1,7 +1,7 @@
 <?php
 require_once "database.php";
 require_once "product-server.php";
-// session_start();
+session_start();
 
 class Product extends Database
 {
@@ -161,41 +161,43 @@ class Product extends Database
 
     private function validateAddedImages($img)
     {
-        if ($img) {
-            foreach ($img['error'] as $key => $error) {
-                $rand = rand(1111111111, 9999999999) . "_";
-                $file_name = $rand . basename($img['name'][$key]);
-                $error = $img['error'][$key];
-                $size = $img['size'][$key];
-                $temp_name = $img['tmp_name'][$key];
-                $path = "../../added_product_images/$file_name";
-                $extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-                $allowedExt = ["jpg", "jpeg", "png"];
-                if (empty(basename($img['name'][$key]))) {
-                    $this->productError["addedImagesError"][$key] = "Upload your product's additional image<br>";
-                }
-                else if (!in_array($extension, $allowedExt)) {
-                    $this->productError["addedImagesError"][$key] = "Only upload jpg, jpeg and png format<br>";
-                }
-                else if ($size > 5000000) {
-                    $this->productError["addedImagesError"][$key] = "Your image cannot be greater than 5MB<br>";
+        $addedImagesArray = [];
+        $i = 0;
+        foreach ($img['error'] as $key => $error) {
+            $rand = rand(1111111111, 9999999999) . "_";
+            $file_name = $rand . $img['name'][$key];
+            $error = $img['error'][$key];
+            $size = $img['size'][$key];
+            $temp_name = $img['tmp_name'][$key];
+            $path = "../../added_product_images/$file_name";
+            $extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            $allowedExt = ["jpg", "jpeg", "png"];
+            if (empty($img['name'][$key])) {
+                $this->productError["addedImagesError"][$key] = "Upload your product's additional image<br>";
+            }
+            else if (!in_array($extension, $allowedExt)) {
+                $this->productError["addedImagesError"][$key] = "Only upload jpg, jpeg and png format<br>";
+            }
+            else if ($size > 5000000) {
+                $this->productError["addedImagesError"][$key] = "Your image cannot be greater than 5MB<br>";
+            }
+            else {
+                if ($error != 0) {
+                    $this->productError["addedImagesError"][$key] = "There was an error uploading your image<br>";
                 }
                 else {
-                    if ($error != 0) {
-                        $this->productError["addedImagesError"][$key] = "There was an error uploading your image<br>";
-                    }
-                    else {
-                        if (!$this->productError) {
-                            move_uploaded_file($temp_name, $path);
-                            return $file_name;
-                        }
+                    if (!$this->productError) {
+                        move_uploaded_file($temp_name, $path);
+                        $addedImagesArray[$i] = $file_name;
+                        $i++;
                     }
                 }
             }
         }
+        return $addedImagesArray;
     }
 
-    public function validateProduct($category, $name, $brand, $price, $quantity, $discount, $description, $image, $addedImages)
+    public function validateProduct($category, $name, $brand, $price, $quantity, $discount, $description, $image, $addedImages, $added_by)
     {
         $category = $this->validateCategory($category);
         $name = $this->validateName($name);
@@ -205,11 +207,56 @@ class Product extends Database
         $discount = $this->validateDiscount($discount);
         $description = $this->validateDescription($description);
         $image = $this->validateImage($image);
-        $addedImages = $this->validateAddedImages($addedImages);
+        if ($addedImages) {
+            $addedImages = $this->validateAddedImages($addedImages);
+        }
 
         if (!$this->productError) {
             $newPrice = $this->newPrice($price, $discount);
             $this->productError["newPrice"] = $newPrice;
+
+            // Start- Insert product details into product table with a single image
+
+            // set the start id to 1001
+            $select = "SELECT id FROM product";
+            $result = $this->connectDb()->query($select);
+            if ($result->num_rows > 0) {
+                $null = NULL;
+                $product = "INSERT INTO product(id, category, name, brand, price, quantity, discount, new_price, image, description, added_by) 
+            VALUES('$null', '$category', '$name', '$brand', '$price', '$quantity', '$discount', '$newPrice', '$image', '$description', '$added_by')";
+                $this->connectDb()->query($product);
+            }
+            else {
+                $start = 1001;
+                $product = "INSERT INTO product(id, category, name, brand, price, quantity, discount, new_price, image, description, added_by) 
+            VALUES('$start', '$category', '$name', '$brand', '$price', '$quantity', '$discount', '$newPrice', '$image', '$description', '$added_by')";
+                $this->connectDb()->query($product);
+            }
+
+            // End- Insert product details into product table with a single image
+
+
+            //Start - Insert additional product images into product table
+
+            if ($addedImages) {
+                $selectLastID = "SELECT id FROM product ORDER BY id DESC LIMIT 1";
+                $selectResult = $this->connectDb()->query($selectLastID);
+                if ($selectResult->num_rows > 0) {
+                    $productID = $selectResult->fetch_all(MYSQLI_ASSOC);
+                    foreach ($productID as $id) {
+                        $id = $id["id"];
+                        for ($i = 0; $i < count($addedImages); $i++) {
+                            $eachImg = $addedImages[$i];
+                            $additionalImageInsert = "INSERT INTO product_images(id, images) 
+                                VALUES('$id', '$eachImg')";
+                            $this->connectDb()->query($additionalImageInsert);
+                        }
+                    }
+                }
+            }
+
+        //End - Insert additional product images into product table
+
         }
     }
 }
@@ -217,10 +264,10 @@ class Product extends Database
 $product = new Product();
 
 if (array_key_exists("added_images", $_FILES)) {
-    $product->validateProduct($_POST["prod-category"], $_POST["prod-name"], $_POST["prod-brand"], $_POST["prod-price"], $_POST["prod-quantity"], $_POST["prod-discount"], $_POST["prod-description"], $_FILES["prod-image"], $_FILES["added_images"]);
+    $product->validateProduct($_POST["prod-category"], $_POST["prod-name"], $_POST["prod-brand"], $_POST["prod-price"], $_POST["prod-quantity"], $_POST["prod-discount"], $_POST["prod-description"], $_FILES["prod-image"], $_FILES["added_images"], $_SESSION['username']);
 }
 else {
-    $product->validateProduct($_POST["prod-category"], $_POST["prod-name"], $_POST["prod-brand"], $_POST["prod-price"], $_POST["prod-quantity"], $_POST["prod-discount"], $_POST["prod-description"], $_FILES["prod-image"], "");
+    $product->validateProduct($_POST["prod-category"], $_POST["prod-name"], $_POST["prod-brand"], $_POST["prod-price"], $_POST["prod-quantity"], $_POST["prod-discount"], $_POST["prod-description"], $_FILES["prod-image"], "", $_SESSION['username']);
 }
 echo json_encode($product->productError);
 

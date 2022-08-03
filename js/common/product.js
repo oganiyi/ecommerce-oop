@@ -8,6 +8,7 @@ let quantity = sellForm["prod-quantity"];
 let discount = sellForm["prod-discount"];
 let description = sellForm["prod-description"];
 let image = sellForm["prod-image"];
+let addedImages = document.getElementsByName("added_images[]");
 
 let errors = {};
 let categoryError = document.querySelector("#prod-categoryErr");
@@ -18,7 +19,7 @@ let quantityError = document.querySelector("#prod-quantityErr");
 let discountError = document.querySelector("#prod-discountErr");
 let descriptionError = document.querySelector("#prod-descriptionErr");
 let imageError = document.querySelector("#imageErr");
-let added_images_errors = document.getElementsByName("added_imagesErr");
+let addedImagesError = document.getElementsByName("added_imagesErr");
 
 function validateCategory(ctg) {
   ctg = ctg.value.trim();
@@ -90,7 +91,7 @@ function validateDiscount(dis) {
   dis = dis.value.trim();
   if (dis === "") {
     errors.discount = "";
-  } else if (isNaN(dis) || !Number.isInteger(dis)) {
+  } else if (isNaN(dis) && !Number.isInteger(dis)) {
     errors.discount = "Only enter an integer";
   } else if (dis < 0 || dis > 99) {
     errors.discount = "Discount cannot be negative or greater than 99";
@@ -119,7 +120,6 @@ function validateImage(img) {
   img = img.value.trim();
   let allowedExt = ["jpg", "jpeg", "png"];
   let splitImageArray = img.split(".");
-
   if (img === "") {
     errors.image = "Upload your product's image";
   } else if (
@@ -130,6 +130,34 @@ function validateImage(img) {
     errors.image = "";
   }
   imageError.innerHTML = errors.image;
+}
+
+function validateAddedImages(img) {
+  if (img.length > 0) {
+    // console.log(img.length);
+    // img.forEach((value, key) => {
+    //   console.log(value.files.item(i).name);
+    // });
+    j = 0;
+    for (let eachImg of img) {
+      eachImg = eachImg.value.trim();
+      // console.log(eachImg);
+      let allowedExt = ["jpg", "jpeg", "png"];
+      let splitImageArray = eachImg.split(".");
+
+      if (eachImg === "") {
+        errors.addedImagesError = "Upload your product's additional image<br>";
+      } else if (
+        !allowedExt.includes(splitImageArray[splitImageArray.length - 1])
+      ) {
+        errors.addedImagesError = "Only upload jpg, jpeg and png format<br>";
+      } else {
+        errors.addedImagesError = "";
+      }
+      addedImagesError[j].innerHTML = errors.addedImagesError;
+      j++;
+    }
+  }
 }
 
 let btnAddMoreImages = sellForm["add-more-images"];
@@ -185,6 +213,7 @@ async function validateProduct() {
   validateDiscount(discount);
   validateDescription(description);
   validateImage(image);
+  validateAddedImages(addedImages);
   let formData = new FormData(sellForm);
 
   try {
@@ -221,12 +250,11 @@ async function validateProduct() {
         imageError.innerHTML = data.imageError;
       }
       if (data.addedImagesError) {
-        for (let i = 0; i < added_images_errors.length; i++) {
-          console.log(i);
-          if (!data.addedImagesError[i]) {
+        for (let k = 0; k < addedImagesError.length; k++) {
+          if (!data.addedImagesError[k]) {
             continue;
           }
-          added_images_errors[i].innerHTML = data.addedImagesError[i];
+          addedImagesError[k].innerHTML = data.addedImagesError[k];
         }
       }
     } else {
