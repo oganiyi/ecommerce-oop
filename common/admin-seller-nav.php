@@ -10,6 +10,10 @@
 if ($pageTitle === "Register") { ?>
     <link rel="stylesheet" href="../css/admin/register.css">
     <?php
+    if ($pageTitle === "Product") { ?>
+    <link rel="stylesheet" href="../css/common/product.css">
+    <?php
+    }
 }
 ?>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -42,7 +46,7 @@ if ($_SESSION['level'] === "seller") {
                     </li>";
 }?>
                     <li class="nav-item">
-                        <a class="nav-link" href="../common/post.php">Post</a>
+                        <a class="nav-link" href="../common/product.php">Sell</a>
                     </li>
                     <!-- <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button"
