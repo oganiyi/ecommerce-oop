@@ -1,0 +1,98 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+#navbarDropdown:hover{
+    color:orange;
+}
+.container-fluid>#cart:hover{
+color: orange;
+}
+input[type=search] {
+    padding: 8px;
+    width: 50%;
+    -webkit-transition: width 0.2s ease-in-out;
+    transition: width 0.2s ease-in-out;
+}
+input[type=search]:focus {
+    width: 60%;
+}
+
+.collapse>.card-body{
+     margin-top: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 200px;
+    height: 100%;
+    padding: 10px;
+   
+   }
+.collapse>.card>a{
+    text-decoration: none;
+    color: black;
+}
+.collapse>.card>a:hover{
+    color: orange;
+}
+.collapse>.card>a>i{
+    color: gray
+}
+.collapse>.card>a>i:hover{
+    color: orange;
+}
+
+.col-sm-2>.img{
+    padding: 5px;
+    width: 200px;
+    height: 200px;
+    right: 100%;
+}
+ .carousel> .carousel inner{
+  width: 500px;
+  height: 100%;
+}
+/* footer */
+.container-fluid>.col-sm-6>.input-group{
+    width: 90%;
+    color: white;
+}
+.container-fluid>.col-sm-4>.btn{
+    font-size: 8px;
+    color: white;
+    font-weight: bold;
+}
+.container-fluid>.col-sm-4>.btn>i{
+    font-size: 15px;
+    margin: 2px;
+}
+.container-fluid>.row>{
+    padding: 5px;
+   
+}
+.container-fluid>.row>.col-sm-3>h6{
+color:white;
+margin-top: 10px;
+
+}
+.container-fluid>.row>.col-sm-3>a{
+display: block;
+color: black;
+text-decoration: none;
+}
+.container-fluid>.row>.col-4>.icon>h6{
+color: white;
+margin-top: 10px;
+}
+.container-fluid>.row>.col-4>.icon>a{
+    text-decoration: none;
+    margin: 10px;
+}
+.container-fluid>.row>.col-4>.payment>h6{
+color: white;
+margin: 10px;
+}
+.container-fluid>.row>.col-4>.payment>a{
+color: white;
+margin: 10px;
+}
