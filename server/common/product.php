@@ -31,6 +31,7 @@ class Product extends Database
             $this->productError['nameError'] = "Name cannot be greater than 25 words";
         }
         else {
+            $name = str_replace("'", "\'", $name);
             return $name;
         }
     }
@@ -39,7 +40,7 @@ class Product extends Database
     {
         $brand = trim($brand);
         if (empty($brand)) {
-            $this->productError["brandError"] = "Kindly input your brand";
+            return "";
         }
         else if (!is_string($brand)) {
             $this->productError["brandError"] = "Brand can only contain letters, numbers or characters";
@@ -48,7 +49,8 @@ class Product extends Database
             $this->productError['brandError'] = "Brand cannot be greater than 4 words";
         }
         else {
-            return $brand;
+            $brand = str_replace("'", "\'", $brand);
+            return ucfirst($brand);
         }
     }
 
@@ -118,10 +120,11 @@ class Product extends Database
         else if (!is_string($des)) {
             $this->productError["descriptionError"] = "Description can only contain letters, numbers or characters";
         }
-        else if (count(explode(" ", $des)) > 500) {
-            $this->productError['descriptionError'] = "Description cannot be greater than 500 words";
+        else if (count(explode(" ", $des)) > 1000) {
+            $this->productError['descriptionError'] = "Description cannot be greater than 1000 words";
         }
         else {
+            $des = str_replace("'", "\'", $des);
             return $des;
         }
     }
@@ -130,6 +133,7 @@ class Product extends Database
     {
         $rand = rand(1111111111, 9999999999) . "_";
         $file_name = $rand . basename($img['name']);
+        $file_name = str_replace("'", "\'", $file_name);
         $error = $img['error'];
         $size = $img['size'];
         $temp_name = $img['tmp_name'];
@@ -151,21 +155,25 @@ class Product extends Database
                 $this->productError["imageError"] = "There was an error uploading your image";
             }
             else {
-                if (!$this->productError) {
-                    move_uploaded_file($temp_name, $path);
-                    return $file_name;
-                }
+                $tempPathFileName = [];
+                $tempPathFileName['temp_name'] = $temp_name;
+                $tempPathFileName['path'] = $path;
+                $tempPathFileName['file_name'] = $file_name;
+                return $tempPathFileName;
+
             }
         }
     }
 
     private function validateAddedImages($img)
     {
-        $addedImagesArray = [];
         $i = 0;
+        $addedImagesArray = [];
+
         foreach ($img['error'] as $key => $error) {
             $rand = rand(1111111111, 9999999999) . "_";
             $file_name = $rand . $img['name'][$key];
+            $file_name = str_replace("'", "\'", $file_name);
             $error = $img['error'][$key];
             $size = $img['size'][$key];
             $temp_name = $img['tmp_name'][$key];
@@ -186,11 +194,12 @@ class Product extends Database
                     $this->productError["addedImagesError"][$key] = "There was an error uploading your image<br>";
                 }
                 else {
-                    if (!$this->productError) {
-                        move_uploaded_file($temp_name, $path);
-                        $addedImagesArray[$i] = $file_name;
-                        $i++;
-                    }
+                    $tempPathFileName = [];
+                    $tempPathFileName['temp_name'] = $temp_name;
+                    $tempPathFileName['path'] = $path;
+                    $tempPathFileName['file_name'] = $file_name;
+                    $addedImagesArray[$i] = $tempPathFileName;
+                    $i++;
                 }
             }
         }
@@ -207,15 +216,22 @@ class Product extends Database
         $discount = $this->validateDiscount($discount);
         $description = $this->validateDescription($description);
         $image = $this->validateImage($image);
+        $yourAddedImages = [];
         if ($addedImages) {
-            $addedImages = $this->validateAddedImages($addedImages);
+            $yourAddedImages = $this->validateAddedImages($addedImages);
         }
 
         if (!$this->productError) {
+            $this->productError["validity"] = "valid";
             $newPrice = $this->newPrice($price, $discount);
             $this->productError["newPrice"] = $newPrice;
 
             // Start- Insert product details into product table with a single image
+
+            // Start - move the temp file into path
+            move_uploaded_file($image['temp_name'], $image['path']);
+            //Stop - move the temp file into path       
+            $imageName = $image['file_name'];
 
             // set the start id to 1001
             $select = "SELECT id FROM product";
@@ -223,13 +239,13 @@ class Product extends Database
             if ($result->num_rows > 0) {
                 $null = NULL;
                 $product = "INSERT INTO product(id, category, name, brand, price, quantity, discount, new_price, image, description, added_by) 
-            VALUES('$null', '$category', '$name', '$brand', '$price', '$quantity', '$discount', '$newPrice', '$image', '$description', '$added_by')";
+            VALUES('$null', '$category', '$name', '$brand', '$price', '$quantity', '$discount', '$newPrice', '$imageName', '$description', '$added_by')";
                 $this->connectDb()->query($product);
             }
             else {
                 $start = 1001;
                 $product = "INSERT INTO product(id, category, name, brand, price, quantity, discount, new_price, image, description, added_by) 
-            VALUES('$start', '$category', '$name', '$brand', '$price', '$quantity', '$discount', '$newPrice', '$image', '$description', '$added_by')";
+            VALUES('$start', '$category', '$name', '$brand', '$price', '$quantity', '$discount', '$newPrice', '$imageName', '$description', '$added_by')";
                 $this->connectDb()->query($product);
             }
 
@@ -245,11 +261,18 @@ class Product extends Database
                     $productID = $selectResult->fetch_all(MYSQLI_ASSOC);
                     foreach ($productID as $id) {
                         $id = $id["id"];
-                        for ($i = 0; $i < count($addedImages); $i++) {
-                            $eachImg = $addedImages[$i];
+                        for ($a = 0; $a < count($yourAddedImages); $a++) {
+                            $eachImg = $yourAddedImages[$a];
+                            // Start - move the temp file into path
+                            move_uploaded_file($eachImg['temp_name'], $eachImg['path']);
+                            //End - move the temp file into path
+
+                            $eachImgName = $eachImg['file_name'];
                             $additionalImageInsert = "INSERT INTO product_images(id, images) 
-                                VALUES('$id', '$eachImg')";
+                            VALUES('$id', '$eachImgName')";
                             $this->connectDb()->query($additionalImageInsert);
+
+
                         }
                     }
                 }
@@ -257,6 +280,9 @@ class Product extends Database
 
         //End - Insert additional product images into product table
 
+        }
+        else {
+            $this->productError["validity"] = "invalid";
         }
     }
 }

@@ -10,6 +10,8 @@ let description = sellForm["prod-description"];
 let image = sellForm["prod-image"];
 let addedImages = document.getElementsByName("added_images[]");
 
+let validity = document.querySelector("#validity");
+
 let errors = {};
 let categoryError = document.querySelector("#prod-categoryErr");
 let nameError = document.querySelector("#prod-nameErr");
@@ -48,7 +50,7 @@ function validateName(name) {
 function validateBrand(brand) {
   brand = brand.value.trim();
   if (brand === "") {
-    errors.brand = "Kindly input your brand";
+    errors.brand = "";
   } else if (typeof brand !== "string") {
     errors.brand = "Brand can only contain letters, numbers or characters";
   } else if (brand.split(" ").length > 4) {
@@ -108,8 +110,8 @@ function validateDescription(des) {
   } else if (typeof des !== "string") {
     errors.description =
       "Description can only contain letters, numbers or characters";
-  } else if (des.split(" ").length > 500) {
-    errors.description = "Description cannot be greater than 500 words";
+  } else if (des.split(" ").length > 1000) {
+    errors.description = "Description cannot be greater than 1000 words";
   } else {
     errors.description = "";
   }
@@ -255,6 +257,24 @@ async function validateProduct() {
             continue;
           }
           addedImagesError[k].innerHTML = data.addedImagesError[k];
+        }
+      }
+      if (data.validity) {
+        validity.classList.add("my-1", "alert", "alert-dismissible");
+        validity.style.display = "block";
+        if (data.validity === "invalid") {
+          validity.classList.add("alert-danger");
+          validity.classList.remove("alert-success");
+          validity.innerHTML =
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>Error(s)! Check your details and try again';
+        }
+        if (data.validity === "valid") {
+          validity.classList.add("alert-success");
+          validity.classList.remove("alert-danger");
+          validity.innerHTML = `<button type="button" class="btn-close" data-bs-dismiss="alert"></button>Product has been uploaded successfully`;
+          setTimeout(() => {
+            window.location.assign("product.php");
+          }, 2000);
         }
       }
     } else {

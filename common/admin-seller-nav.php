@@ -46,7 +46,7 @@ if ($_SESSION['level'] === "seller") {
                     </li>";
 }?>
                     <li class="nav-item">
-                        <a class="nav-link" href="../common/product.php">Sell</a>
+                        <a class="nav-link" href="../common/product.php">Product</a>
                     </li>
                     <!-- <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button"

@@ -8,7 +8,6 @@ if (!isset($_SESSION['email'])) {
 ?>
 
 <div class="container-fluid">
-    <div id="validity" class="my-3 alert alert-dismissible"></div>
     <form name="sell_form" method="post" enctype="multipart/form-data">
         <div class="row">
             <div class="form-floating my-3 col-md-4">
@@ -52,8 +51,9 @@ echo $sellServer->input("col-6 col-sm-4 col-md-3", "discount", "product discount
                     images</button>
             </div>
         </div>
-</div>
-<input type="submit" name="sell" value="Upload product" class="btn btn-success m-3">
-</form>
+        <div id="validity"></div>
+        <input type="submit" name="sell" class="btn btn-success mx-3 my-2" value="Upload product">
+
+    </form>
 </div>
 <script src="../js/common/product.js"></script>
