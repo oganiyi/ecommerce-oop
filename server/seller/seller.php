@@ -108,21 +108,4 @@ if (isset($_POST['generate_product'])) {
     $selectedOptionCat = $_POST['category'];
 }
 
-
-
-// if ($_SESSION['role'] == "Author") {
-//     $selectPost = "SELECT * FROM post
-//                     WHERE email=?
-//                     ORDER BY category ASC, post_date DESC, post_time DESC";
-//     $querySelectPost = $this->connectDb()->query($selectPost);
-//     $querySelectPost->bind_param('s', $_SESSION['email']);
-//     $querySelectPost->execute();
-//     $getSelectPost = $querySelectPost->get_result();
-// }
-
-
-// else {
-//     $specificPost = false;
-// }
-
 ?>
