@@ -12,11 +12,32 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="../css/categories/category.css">
-    <title><?php echo $pageTitle; ?></title>
+    <title></title>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg  navbar-light  sticky-tOP">
+
+    <div class="container">
+        
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <a href=""><i class="fab fa-apple"></i> Supermarket</a>
+  <a href=""><i class="fas fa-flask"></i> Health & Beauty</a>
+  <a href=""><i class="fas fa-home"></i> Home & Office</a>
+  <a href=""><i class="fas fa-mobile"></i> Phones & Tablets</a>
+ <a href=""><i class="fas fa-desktop"></i> computing</a>
+<a href=""><i class="fas fa-plug"></i> Eletronics</a>
+ <a href=""><i class="fas fa-tshirt"></i> Fashions</a>
+ <a href=""><i class="fas fa-baby"></i> Baby Products</a>
+ <a href=""><i class="fas fa-gamepad"></i> Gaming</a>
+<a href=""><i class="fas fa-dumbbell"></i> Sporting Goods</a>
+<a href=""><i class="fas fa-car"></i> Automobile</a>
+<a href=""><i class="fas fa-shoe-prints"></i> Shoes</a>
+<hr>
+<a href=""><i class="fas fa-circle"></i> Other Categories</a>
+</div>
+<div id="main">
+<nav class="navbar navbar-expand-lg  navbar-light  sticky-tOP">
         <div class="container-fluid ">
             <a class="navbar-brand  fw-bold" href="">JUMIA <i class="fas fa-star text-warning"></i> </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -75,62 +96,11 @@
                 </div>
             </div>
     </nav>
-    <div class="container-fluid mt-3">
-        <div class="row">
-            <div class="col-sm-2">
-                <p>
-                    <button class="btn btn-dark" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                        Our Categories
-                    </button>
-                </p>
-                <div class="collapse" id="collapseExample">
-                    <div class="card card-body">
-                        <a href=""><i class="fab fa-apple"></i> Supermarket</a>
-                        <a href=""><i class="fas fa-flask"></i> Health & Beauty</a>
-                        <a href=""><i class="fas fa-home"></i> Home & Office</a>
-                        <a href=""><i class="fas fa-mobile"></i> Phones & Tablets</a>
-                        <a href=""><i class="fas fa-desktop"></i> computing</a>
-                        <a href=""><i class="fas fa-plug"></i> Eletronics</a>
-                        <a href=""><i class="fas fa-tshirt"></i> Fashions</a>
-                        <a href=""><i class="fas fa-baby"></i> Baby Products</a>
-                        <a href=""><i class="fas fa-gamepad"></i> Gaming</a>
-                        <a href=""><i class="fas fa-dumbbell"></i> Sporting Goods</a>
-                        <a href=""><i class="fas fa-car"></i> Automobile</a>
-                        <a href=""><i class="fas fa-shoe-prints"></i> Shoes</a>
-                        <hr>
-                        <a href=""><i class="fas fa-circle"></i> Other Categories</a>
-                    </div>
-                </div>
-
+    <span style="font-size:20px;cursor:pointer" onclick="openNav()">&#9776; Our Categories</span>
+</div>            
+<script src="../js/common/sidenavbar.js"></script>
             </div>
 
-            <!-- <div class="col-sm-8 mt-2 ">
-                <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="../images/Slider_DISCOVER.jpg" class="d-block " alt="...">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="../images/Slider_copy.jpg" class="d-block " alt="...">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="../images/Warranty-Guaranted-homepage-des-sli.jpg" class="d-block" alt="...">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="../images/new_712x384v2.png" class="d-block" alt="...">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="../images/pizza-week_712x384.jpg" class="d-block" alt="...">
-                        </div>
-                    </div>
-                </div>
+              
 
-            </div>
-            <div class="col-sm-2">
-                <img src="../images/clothes.jpeg" class="img" alt="">
-                <img src="../images/jeans.jpeg" class="img" alt="">
-
-            </div>
-        </div> -->
-            <!-- second -->
+          
