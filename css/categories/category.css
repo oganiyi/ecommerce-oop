@@ -1,0 +1,32 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+section#category {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+
+section#category > div.card {
+  width: 23%;
+  padding: 2%;
+  margin: 0 5px;
+}
+
+.card {
+  border: none !important;
+}
+
+@media screen and (max-width: 768px) {
+  section#category > div.card {
+    width: 31%;
+  }
+}
+
+@media screen and (max-width: 568px) {
+  section#category > div.card {
+    width: 40%;
+  }
+}
