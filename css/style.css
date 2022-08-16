@@ -10,8 +10,9 @@
 #navbarDropdown:hover {
   color: orange;
 }
-.container-fluid > #cart:hover {
-  color: orange;
+.navbar-collapse{
+  color: black;
+  display: block;
 }
 input[type="search"] {
   padding: 5px;
@@ -69,6 +70,14 @@ input[type="search"]:focus {
 #main {
   transition: margin-left .5s;
   padding: 16px;
+}
+.card-body>a{
+  display: block;
+  text-decoration: none;
+  color: black;
+}
+.card-body>a:hover{
+  color: orangered;
 }
 
 /* footer */
